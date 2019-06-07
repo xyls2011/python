@@ -1,28 +1,18 @@
 import requests
 from lxml import etree
 import pymongo
+import time
 
 
 class QiushiSpider:
     def __init__(self):
-        print('init ...')
-        self.url = "https://www.qiushibaike.com/text/"
         self.headers = {"User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0)"}
         # 链接对象
         self.conn = pymongo.MongoClient("localhost", 27017)
         # 库对象
-        self.db = self.conn["Qiushi_DB"]
+        self.db = self.conn["Qiushi_DB1"]
         # 集合对象
         self.myset = self.db["duanzi"]
-
-
-    # 获取页面
-    def getPage(self):
-        response = requests.get(self.url, headers=self.headers)
-        response.enconding = "utf-8"
-        html = response.text
-        self.parsePage(html)
-
 
     # 解析并写入数据库
     def parsePage(self, html):
@@ -41,7 +31,6 @@ class QiushiSpider:
             # 段子内容
             content = base.xpath('./a/div[@class="content"]/span/text()')
             content = "".join(content).strip()
-            print('段子内容',content)
             # 好笑数量
             laughNum = base.xpath('.//i[@class="number"]')[0].text
             # 评论数量
@@ -55,15 +44,21 @@ class QiushiSpider:
             }
             self.myset.insert_one(d)
 
+    # 获取页面
+    def getPage(self, url):
+        response = requests.get(url, headers=self.headers)
+        # response.enconding = "utf-8"
+        html = response.text
+        self.parsePage(html)
 
-    # 主函数
     def workOn(self):
-        print("正在爬取中.....")
-        self.getPage()
-        print("爬取结束,存入Qiushidb")
-
+        for page in range(1, 21):
+            url = 'https://www.qiushibaike.com/text/page/' + str(page)+'/'
+            print('正在爬取url：', url)
+            self.getPage(url)
+            time.sleep(2)
 
 if __name__ == "__main__":
-    print('test')
+    print("start crawling qiushibaike:")
     spider = QiushiSpider()
     spider.workOn()
