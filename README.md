@@ -5,3 +5,5 @@ notes of python learning
 https://blog.csdn.net/sjp8497697/article/details/91127627
 
 
+2. qiushibaike: Python爬虫学习笔记 -- 爬取糗事百科
+https://blog.csdn.net/sjp8497697/article/details/91128943
